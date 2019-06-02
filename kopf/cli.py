@@ -12,7 +12,10 @@ from kopf.reactor import queueing
 def login():
     try:
         config.login()
+        config.verify()
     except config.LoginError as e:
+        raise click.ClickException(str(e))
+    except config.AccessError as e:
         raise click.ClickException(str(e))
 
 

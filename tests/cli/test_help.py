@@ -2,11 +2,13 @@
 
 def test_help_in_root(invoke, mocker):
     login = mocker.patch('kopf.k8s.config.login')
+    verify = mocker.patch('kopf.k8s.config.verify')
 
     result = invoke(['--help'])
 
     assert result.exit_code == 0
     assert not login.called
+    assert not verify.called
 
     assert 'Usage: kopf [OPTIONS]' in result.output
     assert '  run ' in result.output
@@ -16,6 +18,7 @@ def test_help_in_root(invoke, mocker):
 
 def test_help_in_subcommand(invoke, mocker):
     login = mocker.patch('kopf.k8s.config.login')
+    verify = mocker.patch('kopf.k8s.config.verify')
     preload = mocker.patch('kopf.reactor.loading.preload')
     real_run = mocker.patch('kopf.reactor.queueing.run')
 
@@ -23,6 +26,7 @@ def test_help_in_subcommand(invoke, mocker):
 
     assert result.exit_code == 0
     assert not login.called
+    assert not verify.called
     assert not preload.called
     assert not real_run.called
 

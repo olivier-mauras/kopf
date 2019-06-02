@@ -1,8 +1,6 @@
 import asyncio
 import logging
 
-import kubernetes
-
 format = '[%(asctime)s] %(name)-20.20s [%(levelname)-8.8s] %(message)s'
 
 
@@ -17,11 +15,16 @@ def configure(debug=None, verbose=None, quiet=None):
     logger.setLevel(log_level)
 
     # Configure the Kubernetes client defaults according to our settings.
-    config = kubernetes.client.configuration.Configuration()
-    config.logger_format = format
-    config.logger_file = None  # once again after the constructor to re-apply the formatter
-    config.debug = debug
-    kubernetes.client.configuration.Configuration.set_default(config)
+    try:
+        import kubernetes
+    except ImportError:
+        pass
+    else:
+        config = kubernetes.client.configuration.Configuration()
+        config.logger_format = format
+        config.logger_file = None  # once again after the constructor to re-apply the formatter
+        config.debug = debug
+        kubernetes.client.configuration.Configuration.set_default(config)
 
     # Kubernetes client is as buggy as hell: it adds its own stream handlers even in non-debug mode,
     # does not respect the formatting, and dumps too much of the low-level info.

@@ -1,7 +1,10 @@
 import datetime
 import logging
 
-import kubernetes.client.rest
+import pykube
+import requests
+
+from kopf.k8s import config
 
 logger = logging.getLogger(__name__)
 
@@ -33,36 +36,34 @@ def post_event(*, obj, type, reason, message=''):
         namespace=obj['metadata']['namespace'],
     )
 
-    meta = kubernetes.client.V1ObjectMeta(
-        namespace=namespace,
-        generate_name='kopf-event-',
-    )
-    body = kubernetes.client.V1Event(
-        metadata=meta,
+    body = {
+        'metadata': {
+            'namespace': namespace,
+            'generateName': 'kopf-event-',
+        },
 
-        action='Action?',
-        type=type,
-        reason=reason,
-        message=message,
+        'action': 'Action?',
+        'type': type,
+        'reason': reason,
+        'message': message,
 
-        reporting_component='kopf',
-        reporting_instance='dev',
-        source=kubernetes.client.V1EventSource(component='kopf'),  # used in the "From" column in `kubectl describe`.
+        'reportingComponent': 'kopf',
+        'reportingInstance': 'dev',
+        'source' : {'component': 'kopf'},  # used in the "From" column in `kubectl describe`.
 
-        involved_object=ref,
+        'involvedObject': ref,
 
-        first_timestamp=now.isoformat() + 'Z',  # '2019-01-28T18:25:03.000000Z' -- seen in `kubectl describe ...`
-        last_timestamp=now.isoformat() + 'Z',  # '2019-01-28T18:25:03.000000Z' - seen in `kubectl get events`
-        event_time=now.isoformat() + 'Z',  # '2019-01-28T18:25:03.000000Z'
-    )
+        'firstTimestamp': now.isoformat() + 'Z',  # '2019-01-28T18:25:03.000000Z' -- seen in `kubectl describe ...`
+        'lastTimestamp': now.isoformat() + 'Z',  # '2019-01-28T18:25:03.000000Z' - seen in `kubectl get events`
+        'eventTime': now.isoformat() + 'Z',  # '2019-01-28T18:25:03.000000Z'
+    }
 
     try:
-        api = kubernetes.client.CoreV1Api()
-        api.create_namespaced_event(
-            namespace=namespace,
-            body=body,
-        )
-    except kubernetes.client.rest.ApiException as e:
+        api = config.get_pykube_api()
+        obj = pykube.Event(api, body)
+        obj.create()
+
+    except requests.exceptions.HTTPError as e:
         # Events are helpful but auxiliary, they should not fail the handling cycle.
         # Yet we want to notice that something went wrong (in logs).
         logger.warning("Failed to post an event. Ignoring and continuing. "
