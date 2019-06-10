@@ -3,6 +3,7 @@ import functools
 import click
 
 from kopf import config
+from kopf.logging import logging
 from kopf.reactor import loading
 from kopf.reactor import peering
 from kopf.reactor import queueing
@@ -15,7 +16,7 @@ def logging_options(fn):
     @click.option('-q', '--quiet', is_flag=True)
     @functools.wraps(fn)  # to preserve other opts/args
     def wrapper(verbose, quiet, debug, *args, **kwargs):
-        config.configure(debug=debug, verbose=verbose, quiet=quiet)
+        logging.configure(debug=debug, verbose=verbose, quiet=quiet)
         return fn(*args, **kwargs)
     return wrapper
 

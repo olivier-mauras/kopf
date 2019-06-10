@@ -11,6 +11,8 @@ from kopf import (
 )
 from kopf.config import (
     login,
+)
+from kopf.logging.logging import (
     configure,
 )
 from kopf.events import (
