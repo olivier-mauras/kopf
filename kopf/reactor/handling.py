@@ -23,6 +23,7 @@ from typing import Optional, Callable, Iterable, Union, Collection
 
 from kopf import events
 from kopf.k8s import patching
+from kopf.logging import loggers
 from kopf.reactor import causation
 from kopf.reactor import invocation
 from kopf.reactor import registries
@@ -37,12 +38,6 @@ WAITING_KEEPALIVE_INTERVAL = 10 * 60
 
 DEFAULT_RETRY_DELAY = 1 * 60
 """ The default delay duration for the regular exception in retry-mode. """
-
-
-class ObjectLogger(logging.LoggerAdapter):
-    """ An utility to prefix the per-object log messages. """
-    def process(self, msg, kwargs):
-        return f"[{self.extra['namespace']}/{self.extra['name']}] {msg}", kwargs
 
 
 class HandlerFatalError(Exception):
@@ -92,12 +87,7 @@ async def custom_object_handler(
     body = event['object']
     delay = None
     patch = {}
-
-    # Each object has its own prefixed logger, to distinguish parallel handling.
-    logger = ObjectLogger(logging.getLogger(__name__), extra=dict(
-        namespace=body.get('metadata', {}).get('namespace', 'default'),
-        name=body.get('metadata', {}).get('name', body.get('metadata', {}).get('uid', None)),
-    ))
+    logger = loggers.ObjectLogger(body=body)
 
     # If the global freeze is set for the processing (i.e. other operator overrides), do nothing.
     if freeze.is_set():

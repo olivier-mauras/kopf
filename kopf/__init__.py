@@ -12,6 +12,9 @@ from kopf import (
 from kopf.config import (
     login,
 )
+from kopf.logging.loggers import (
+    ObjectLogger,
+)
 from kopf.logging.logging import (
     configure,
 )
@@ -61,7 +64,7 @@ from kopf.structs.hierarchies import (
 
 __all__ = [
     'on', 'lifecycles', 'register', 'execute',
-    'login', 'configure',
+    'login', 'configure', 'ObjectLogger',
     'event', 'info', 'warn', 'exception',
     'run', 'create_tasks',
     'adopt', 'label',
