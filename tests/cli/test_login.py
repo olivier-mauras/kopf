@@ -1,7 +1,7 @@
 import kubernetes
 import pytest
 
-from kopf.config import login, LoginError
+from kopf.k8s.config import login, LoginError
 
 
 @pytest.fixture(autouse=True)

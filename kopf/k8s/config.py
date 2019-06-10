@@ -1,8 +1,5 @@
-
-import asyncio
 import logging
 
-import click
 import kubernetes
 import kubernetes.client.rest
 import urllib3.exceptions
@@ -10,13 +7,13 @@ import urllib3.exceptions
 logger = logging.getLogger(__name__)
 
 
-class LoginError(click.ClickException):
-    """ Raised when the operator cannot login to the API. """
+class LoginError(Exception):
+    """ Raised when the operator cannot login to the cluster. """
 
 
 def login():
     """
-    Login the the Kubernetes cluster, locally or remotely.
+    Login to Kubernetes cluster, locally or remotely.
     """
 
     # Configure the default client credentials for all possible environments.

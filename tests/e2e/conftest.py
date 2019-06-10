@@ -19,7 +19,7 @@ def exampledir(request):
 
 @pytest.fixture(scope='session', autouse=True)
 def autologin():
-    kopf.config.login()  # or anything like that; it is not a unit-under-test
+    kopf.login()  # or anything like that; it is not a unit-under-test
 
 
 @pytest.fixture()
