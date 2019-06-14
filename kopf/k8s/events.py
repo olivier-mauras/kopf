@@ -18,7 +18,9 @@ def post_event(*, obj, type, reason, message=''):
     """
 
     now = datetime.datetime.utcnow()
-    namespace = obj['metadata']['namespace']
+
+    # For cluster objects, post the events to the default namespace (there are no cluster events).
+    namespace = obj.get('metadata', {}).get('namespace', 'default')
 
     # Prevent a common case of event posting errors but shortening the message.
     if len(message) > MAX_MESSAGE_LENGTH:
@@ -33,7 +35,7 @@ def post_event(*, obj, type, reason, message=''):
         kind=obj['kind'],
         name=obj['metadata']['name'],
         uid=obj['metadata']['uid'],
-        namespace=obj['metadata']['namespace'],
+        namespace=namespace,
     )
 
     body = {
