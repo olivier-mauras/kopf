@@ -11,6 +11,12 @@ from kopf import (
 )
 from kopf.k8s.config import (
     login,
+    login_pykube,
+    login_client,
+    verify_pykube,
+    verify_client,
+    get_pykube_cfg,
+    get_pykube_api,
 )
 from kopf.logging.loggers import (
     ObjectLogger,
