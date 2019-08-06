@@ -4,12 +4,27 @@ All the functions to properly build the object hierarchies.
 from kopf.structs import dicts
 
 
+def get_api_version(body):
+    """
+    Api version attribute may differ across api resources
+    Returns the correct one
+    """
+    if 'apiVersion' in body:
+        api_ver = body['apiVersion']
+    elif 'api_version' in body:
+        api_ver = body['api_version']
+
+    return api_ver
+
+
 def build_object_reference(body):
     """
     Construct an object reference for the events.
     """
+    api_version = get_api_version(body)
+
     return dict(
-        apiVersion=body['apiVersion'],
+        apiVersion=api_version,
         kind=body['kind'],
         name=body['metadata']['name'],
         uid=body['metadata']['uid'],
@@ -24,10 +39,12 @@ def build_owner_reference(body):
     The structure needed to link the children objects to the current object as a parent.
     See https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/
     """
+    api_version = get_api_version(body)
+
     return dict(
         controller=True,
         blockOwnerDeletion=True,
-        apiVersion=body['apiVersion'],
+        apiVersion=api_version,
         kind=body['kind'],
         name=body['metadata']['name'],
         uid=body['metadata']['uid'],
